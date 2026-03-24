@@ -1,6 +1,6 @@
 # openresty-acme
 
-基于 `OpenResty + nginx-acme` 的容器化NGINX镜像，内置默认 `nginx` 配置，默认时区为 `Asia/Shanghai`。
+基于 `OpenResty + nginx-acme`，内置默认 `nginx` 配置。
 
 ## 项目说明
 
@@ -38,36 +38,21 @@ docker run -d --name openresty-acme \
 ## 使用 Docker Compose
 
 ```bash
-mkdir -p /opt/openresty-acme/{ssl,logs,conf.d} && cd /opt/openresty-acme
-cat << 'EOF' > docker-compose.yml
-services:
-  openresty:
-    image: machsgut/openresty-acme:latest
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "127.0.0.1:8443:8443"
-    environment:
-      TZ: Asia/Shanghai
-    volumes:
-      - ./ssl/:/usr/local/openresty/ssl/
-      - ./logs/:/usr/local/openresty/nginx/logs
-      - ./nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
-      - ./conf.d/:/usr/local/openresty/nginx/conf.d/:ro
-EOF
-docker compose up -d
+# 拉取代码
+cd /opt && git clone https://github.com/machsgut/openresty-acme.git && cd openresty-acme
+
+# 创建持久化目录
+mkdir -p /opt/openresty-acme/{ssl,logs,conf.d}
+
+# 生成自签证书
+openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+  -keyout ssl/selfsigned.key \
+  -out ssl/selfsigned.crt \
+  -subj "/CN=localhost"
+
+# 构建并启动
+docker compose up -d --build
 ```
-
-当前 `docker-compose.yml` 默认：
-
-- 端口：`80`、`443`、`127.0.0.1:8443`
-- 时区：`TZ=Asia/Shanghai`
-- 挂载：
-  - `./ssl/` -> `/usr/local/openresty/ssl/`
-  - `./logs/` -> `/usr/local/openresty/nginx/logs`
-  - `./nginx.conf` -> `/usr/local/openresty/nginx/conf/nginx.conf:ro`
-  - `./conf.d/` -> `/usr/local/openresty/nginx/conf.d/:ro`
 
 ## 日志查看
 
