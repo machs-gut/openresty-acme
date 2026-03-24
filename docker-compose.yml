@@ -1,0 +1,18 @@
+services:
+  openresty:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: openresty-acme:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "127.0.0.1:8443:8443"
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ./ssl/:/usr/local/openresty/ssl/
+      - ./logs/:/usr/local/openresty/nginx/logs
+      - ./nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf:ro
+      - ./conf.d/:/usr/local/openresty/nginx/conf.d/:ro

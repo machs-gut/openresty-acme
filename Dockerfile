@@ -113,6 +113,14 @@ RUN mkdir -p \
     /usr/local/openresty/site/lualib \
     /usr/local/openresty/ssl/acme-letsencrypt
 
+COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
+COPY conf.d/ /usr/local/openresty/nginx/conf.d/
+
+RUN openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
+    -keyout /usr/local/openresty/ssl/selfsigned.key \
+    -out /usr/local/openresty/ssl/selfsigned.crt \
+    -subj "/CN=localhost"
+
 WORKDIR /usr/local/openresty/nginx
 
 # 前台运行，便于容器进程管理
