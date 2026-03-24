@@ -1,7 +1,9 @@
 map $ssl_preread_server_name $http_backend {
+
     # SNI 分流，实现443端口转发到指定域名
     # www.test.com test_backend;
     default local_website;
+    
 }
 
 # upstream test_backend {
