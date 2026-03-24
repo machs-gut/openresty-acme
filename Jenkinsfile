@@ -10,7 +10,6 @@ pipeline {
 
     environment {
         TZ = 'Asia/Shanghai'
-        IMAGE_REPO = 'lincxdd/demo'
         IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
@@ -33,15 +32,25 @@ pipeline {
                             export DOCKER_CONFIG="${WORKSPACE}/.docker"
 
                             SHORT=$(printf '%s' "${GIT_COMMIT:-unknown}" | cut -c1-7)
+                            PREFIX="$(printf '%s' "${DOCKER_REGISTRY_PREFIX:-}" | sed 's:/*$::')"
+                            TARGET_REPO="${IMAGE_REPO}"
+                            if [ -n "${PREFIX}" ]; then
+                                TARGET_REPO="${PREFIX}/${IMAGE_REPO}"
+                            fi
 
-                            /kaniko/executor \
+                            set -- /kaniko/executor \
                                 --context "${WORKSPACE}" \
                                 --dockerfile "${WORKSPACE}/Dockerfile" \
-                                --destination "${IMAGE_REPO}:${IMAGE_TAG}" \
-                                --destination "${IMAGE_REPO}:latest" \
-                                --destination "${IMAGE_REPO}:git-${SHORT}" \
+                                --destination "${TARGET_REPO}:${IMAGE_TAG}" \
+                                --destination "${TARGET_REPO}:git-${SHORT}" \
                                 --snapshot-mode=redo \
                                 --use-new-run
+
+                            if [ "${PUSH_LATEST:-true}" = "true" ]; then
+                                set -- "$@" --destination "${TARGET_REPO}:latest"
+                            fi
+
+                            "$@"
                         '''
                     }
                 }

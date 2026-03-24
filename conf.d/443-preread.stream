@@ -1,9 +1,13 @@
 map $ssl_preread_server_name $http_backend {
+    default local_website;
+}
 
-    default             local_website;
+upstream local_website {
+    server 127.0.0.1:8443;
 }
 
 server {
+
     listen 443;
     ssl_preread on; 
     proxy_pass $http_backend;
