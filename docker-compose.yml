@@ -6,10 +6,7 @@ services:
     container_name: openresty
     image: machsgut/openresty-acme:latest
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "127.0.0.1:8443:8443"
+    network_mode: host
     environment:
       TZ: Asia/Shanghai
     volumes:
