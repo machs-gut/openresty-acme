@@ -5,7 +5,7 @@ server {
 }
 
 server {
-    listen 8443 ssl;
+    listen 8443 ssl proxy_protocol;
     http2 on;
     server_name demo.com;
 
